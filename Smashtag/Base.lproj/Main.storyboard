@@ -66,6 +66,12 @@
                                         <constraint firstAttribute="bottomMargin" secondItem="lkb-52-o5m" secondAttribute="bottom" id="wH2-MK-zSp"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="tweetCreatedLabel" destination="JeZ-Ac-Yd9" id="OhR-vm-kNL"/>
+                                    <outlet property="tweetProfileImageView" destination="dw9-4s-9DX" id="R8p-x1-eCf"/>
+                                    <outlet property="tweetScreenNameLabel" destination="Abe-Ku-Mfn" id="Y7U-qg-oU7"/>
+                                    <outlet property="tweetTextLabel" destination="iXB-DU-e7l" id="Obo-NP-H1k"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
