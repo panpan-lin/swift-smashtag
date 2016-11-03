@@ -9,7 +9,7 @@
 import UIKit
 import Twitter
 
-class TweetTableTableViewController: UITableViewController {
+class TweetTableTableViewController: UITableViewController, UITextFieldDelegate {
 
     var tweets = [Array<Twitter.Tweet>]() {
         didSet {
@@ -53,7 +53,6 @@ class TweetTableTableViewController: UITableViewController {
         super.viewDidLoad()
         tableView.estimatedRowHeight = tableView.rowHeight
         tableView.rowHeight = UITableViewAutomaticDimension
-        searchText = "#stanford"
     }
 
     // MARK: - UITableViewDataSource
@@ -83,6 +82,19 @@ class TweetTableTableViewController: UITableViewController {
         return cell
     }
 
+    @IBOutlet weak var searchTextField: UITextField! {
+        didSet {
+            searchTextField.delegate = self
+            searchTextField.text = searchText
+        }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        searchText = textField.text
+        return true
+    }
+    
     /*
     // MARK: - Navigation
 
