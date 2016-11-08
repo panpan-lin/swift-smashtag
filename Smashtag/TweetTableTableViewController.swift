@@ -8,9 +8,12 @@
 
 import UIKit
 import Twitter
+import CoreData
 
 class TweetTableTableViewController: UITableViewController, UITextFieldDelegate {
-
+    
+    var managedObjectContext: NSManagedObjectContext? = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext
+    
     var tweets = [Array<Twitter.Tweet>]() {
         didSet {
             tableView.reloadData()
@@ -42,10 +45,49 @@ class TweetTableTableViewController: UITableViewController, UITextFieldDelegate 
                     if request == weakSelf?.lastTwitterRequest {
                         if !(newTweets.isEmpty) {
                              weakSelf?.tweets.insert(newTweets, at: 0)
+                             weakSelf?.updateDataBase(newTweets: newTweets)
                         }
                     }
                 }
             }
+        }
+    }
+    
+    private func updateDataBase(newTweets: [Twitter.Tweet]) {
+        managedObjectContext?.perform {
+            for twitterInfo in newTweets {
+                // create a new, unique Tweet with that Twitter info
+                _ = Tweet.tweetWithTwitterInfo(twitterInfo: twitterInfo, inManagedObjectContext: self.managedObjectContext!)
+            }
+            do {
+                try self.managedObjectContext?.save()
+            } catch let error {
+                print("Core Data Error: \(error)")
+            }
+        }
+        printDatabaseStatistics()
+        print("Done printing Database Statistics")
+    }
+    
+    private func printDatabaseStatistics() {
+        managedObjectContext?.perform {
+            // less efficient way to count objects
+            if let results = try? self.managedObjectContext!.fetch(NSFetchRequest(entityName: "TwitterUser")) {
+                print("\(results.count) TwitterUsers")
+            }
+            
+            // more efficient way to count objects
+            if let tweetCount = try? self.managedObjectContext!.count(for: NSFetchRequest(entityName: "Tweet")) {
+                print("\(tweetCount) Tweets")
+            }
+            /*
+            do {
+                let tweetCount = try self.managedObjectContext!.count(for: NSFetchRequest(entityName: "Tweet"))
+                print("\(tweetCount) Tweets")
+            } catch let error {
+                print("Can't get tweetCount due to \(error)")
+            }*/
+            
         }
     }
     
