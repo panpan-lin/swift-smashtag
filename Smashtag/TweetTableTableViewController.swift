@@ -91,37 +91,44 @@ class TweetTableTableViewController: UITableViewController, UITextFieldDelegate 
         }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        tableView.estimatedRowHeight = tableView.rowHeight
-        tableView.rowHeight = UITableViewAutomaticDimension
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "TweetersMentioningSearchTerm" {
+            if let tweetersTVC = segue.destination as? TweetersTableViewController {
+                tweetersTVC.mention = searchText!
+                tweetersTVC.managedObjectContext = managedObjectContext
+            }
+        }
     }
 
     // MARK: - UITableViewDataSource
-
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "\(tweets.count - section)"
+    }
+    
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return tweets.count
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return tweets[section].count
     }
     
-    private struct Storyboard {
-        static let TweetCellIdentifier = "Tweet"
-    }
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Storyboard.TweetCellIdentifier, for: indexPath)
-
+        
         let tweet = tweets[indexPath.section][indexPath.row]
         if let tweetCell = cell as? TweetTableViewCell {
             tweetCell.tweet = tweet
         }
-
+        
         return cell
+    }
+    
+    private struct Storyboard {
+        static let TweetCellIdentifier = "Tweet"
     }
 
     @IBOutlet weak var searchTextField: UITextField! {
@@ -137,6 +144,12 @@ class TweetTableTableViewController: UITableViewController, UITextFieldDelegate 
         return true
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.estimatedRowHeight = tableView.rowHeight
+        tableView.rowHeight = UITableViewAutomaticDimension
+    }
+  
     /*
     // MARK: - Navigation
 
