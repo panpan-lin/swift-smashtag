@@ -26,7 +26,7 @@ class TweetersTableViewController: CoreDataTableViewController {
     private func updateUI() {
         if let context = managedObjectContext , (mention?.characters.count)! > 0 {
             let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TwitterUser")
-            request.predicate = NSPredicate(format: "any tweets.text contains[c] %@", mention!)
+            request.predicate = NSPredicate(format: "any tweets.text contains[c] %@ and !screenName beginswith[c] %@", mention!, "CatKlavier")
             request.sortDescriptors = [NSSortDescriptor(
                 key: "screenName",
                 ascending: true,
@@ -43,6 +43,20 @@ class TweetersTableViewController: CoreDataTableViewController {
         }
     }
     
+    private func tweetCountWithMentionByTwitterUser(user: TwitterUser) -> Int? {
+        var count: Int?
+        user.managedObjectContext?.performAndWait {
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Tweet")
+            request.predicate = NSPredicate(format: "text contains[c] %@ and tweeter = %@", self.mention!, user)
+            do {
+                count = try user.managedObjectContext?.count(for: request)
+            } catch let error {
+                print("error: \(error)")
+            }
+        }
+        return count
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TwitterUserCell", for: indexPath)
 
@@ -53,6 +67,11 @@ class TweetersTableViewController: CoreDataTableViewController {
                 screenName = twitterUser.screenName
             }
             cell.textLabel?.text = screenName
+            if let count = tweetCountWithMentionByTwitterUser(user: twitterUser) {
+                cell.detailTextLabel?.text = (count == 1) ? "1 tweet" : "\(count) tweets"
+            } else {
+                cell.detailTextLabel?.text = ""
+            }
         }
 
         return cell
